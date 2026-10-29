@@ -1,0 +1,16 @@
+cat << 'EOF' > .gitignore
+/vendor
+/node_modules
+/.env
+/.env.backup
+/.env.*.local
+/.phpunit.cache
+/public/storage
+/storage/*.key
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*
+/storage/logs/*
+.DS_Store
+EOF
