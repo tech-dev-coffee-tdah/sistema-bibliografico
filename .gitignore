@@ -1,4 +1,4 @@
-cat << 'EOF' > .gitignore
+.gitignore
 /vendor
 /node_modules
 /.env
@@ -13,4 +13,3 @@ cat << 'EOF' > .gitignore
 /storage/framework/views/*
 /storage/logs/*
 .DS_Store
-EOF
