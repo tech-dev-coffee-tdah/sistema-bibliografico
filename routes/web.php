@@ -14,5 +14,5 @@ Route::resource('livros', LivroController::class);
 Route::resource('autores', AutorController::class);
 Route::resource('assuntos', AssuntoController::class);
 
-// Rota oficial do Relatório PDF (Card 06)
+// Rota oficial do Relatório PDF
 Route::get('/relatorio/pdf', [RelatorioController::class, 'gerarPdf'])->name('relatorio.pdf');
