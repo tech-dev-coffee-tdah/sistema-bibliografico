@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\DTOs\LivroDTO;
+use App\Dtos\LivroDTO;
 use App\Models\Livro;
 use Illuminate\Support\Facades\DB;
 
