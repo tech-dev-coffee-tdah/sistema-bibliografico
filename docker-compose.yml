@@ -1,0 +1,65 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: tjjud_app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    networks:
+      - tjjud_network
+
+  webserver:
+    image: nginx:alpine
+    container_name: tjjud_nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx/app.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - tjjud_network
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: tjjud_db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: tjjud_db
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: tjjud_user
+      MYSQL_PASSWORD: tjjud_password
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - tjjud_network
+
+  redis:
+    image: redis:alpine
+    container_name: tjjud_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - tjjud_network
+
+networks:
+  tjjud_network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
