@@ -1,5 +1,3 @@
-Elaborei a **documentação técnica completa** em formato `README.md`, pronta para ser incluída no seu repositório de entrega do projeto. Ela abrange a arquitetura, o setup de infraestrutura Docker/Redis, a modelagem de dados customizada, os padrões de projeto aplicados e os comandos de execução da suíte de testes.
-
 ---
 
 # 📚 Documentação Técnica - TJ-JUD Sistema Bibliográfico
