@@ -15,15 +15,18 @@ class LivroRequest extends FormRequest
         return true;
     }
 
+    /**
+     * Sanitiza os dados ANTES de aplicar as regras de validação.
+     * Converte o valor em formato BR (11,11 ou 1.250,50) para o padrão numérico (11.11 ou 1250.50).
+     */
     protected function prepareForValidation(): void
     {
-        // Sanitiza a string de moeda (ex: "R$ 1.250,50" -> "1250.50")
-        if ($this->has('valor')) {
-            $valorSanitizado = str_replace(['R$', ' ', '.'], '', $this->valor);
+        if ($this->has('valor') && is_string($this->valor)) {
+            $valorSanitizado = str_replace('.', '', $this->valor);
             $valorSanitizado = str_replace(',', '.', $valorSanitizado);
 
             $this->merge([
-                'valor' => (float) $valorSanitizado,
+                'valor' => $valorSanitizado,
             ]);
         }
     }
@@ -42,9 +45,9 @@ class LivroRequest extends FormRequest
             'ano_publicacao' => ['required', 'digits:4'],
             'valor' => ['required', 'numeric', 'min:0'],
             'autores' => ['required', 'array', 'min:1'],
-            'autores.*' => ['exists:autores,id'],
+            'autores.*' => ['exists:autors,CodAu'],
             'assuntos' => ['required', 'array', 'min:1'],
-            'assuntos.*' => ['exists:assuntos,id'],
+            'assuntos.*' => ['exists:assuntos,CodAs'],
         ];
     }
 }

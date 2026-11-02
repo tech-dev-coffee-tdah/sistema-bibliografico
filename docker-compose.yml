@@ -56,6 +56,23 @@ services:
     networks:
       - tjjud_network
 
+  queue_worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: tjjud_queue_worker
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan queue:work redis --sleep=3 --tries=3
+    volumes:
+      - .:/var/www
+    networks:
+      - tjjud_network
+    depends_on:
+      - app
+      - db
+      - redis
+
 networks:
   tjjud_network:
     driver: bridge

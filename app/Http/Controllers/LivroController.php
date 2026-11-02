@@ -40,10 +40,10 @@ class LivroController extends Controller
     public function store(LivroRequest $request)
     {
         $dto = LivroDTO::fromRequest($request);
-        $this->livroService->criarLivro($dto);
+        $livro = $this->livroService->criarLivro($dto);
 
         return redirect()->route('livros.index')
-            ->with('success', 'Livro cadastrado com sucesso!');
+            ->with('success', "Livro \"{$livro->titulo}\" (#{$livro->id}) cadastrado com sucesso!");
     }
 
     /**
@@ -73,7 +73,7 @@ class LivroController extends Controller
         $this->livroService->atualizarLivro($livro, $dto);
 
         return redirect()->route('livros.index')
-            ->with('success', 'Livro atualizado com sucesso!');
+            ->with('success', "Livro \"{$livro->titulo}\" (#{$livro->id}) atualizado com sucesso!");
     }
 
     /**
@@ -81,9 +81,13 @@ class LivroController extends Controller
      */
     public function destroy(Livro $livro)
     {
+        // Captura o Título e o ID antes de deletar do banco
+        $titulo = $livro->titulo;
+        $id = $livro->id;
+
         $this->livroService->deletarLivro($livro);
 
         return redirect()->route('livros.index')
-            ->with('success', 'Livro removido com sucesso!');
+            ->with('success', "Livro \"{$titulo}\" (#{$id}) removido com sucesso!");
     }
 }

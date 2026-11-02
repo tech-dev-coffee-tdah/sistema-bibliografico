@@ -23,8 +23,8 @@ class DatabaseSeeder extends Seeder
 
         Livro::factory(50)->create()->each(function ($livro) use ($autors, $assuntos) {
             // Relaciona cada livro com 1 a 3 autores e 1 a 2 assuntos (N:N)
-            $livro->autors()->attach($autors->random(rand(1, 3))->pluck('id'));
-            $livro->assuntos()->attach($assuntos->random(rand(1, 2))->pluck('id'));
+            $livro->autors()->attach($autors->random(rand(1, 3))->pluck('CodAu'));
+            $livro->assuntos()->attach($assuntos->random(rand(1, 2))->pluck('CodAs'));
         });
     }
 }

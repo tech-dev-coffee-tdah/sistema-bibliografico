@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('autors', function (Blueprint $table) {
-            $table->id();
+            $table->id('CodAu');
             $table->string('nome', 40);
             $table->timestamps();
+            $table->softDeletes();  // Adiciona a coluna deleted_at para soft deletes
+
+            // Índices de Alta Performance
+            $table->index('deleted_at'); // Acelera o filtro automático do SoftDeletes
         });
     }
 

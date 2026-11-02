@@ -12,20 +12,23 @@ class LivroDTO
         public readonly int $edicao,
         public readonly string $anoPublicacao,
         public readonly float $valor,
-        public readonly array $autoresIds,
-        public readonly array $assuntosIds,
+        public readonly array $autores = [],
+        public readonly array $assuntos = []
     ) {}
 
     public static function fromRequest(LivroRequest $request): self
     {
         return new self(
-            titulo: $request->validated('titulo'),
-            editora: $request->validated('editora'),
-            edicao: (int) $request->validated('edicao'),
-            anoPublicacao: $request->validated('ano_publicacao'),
-            valor: (float) $request->validated('valor'),
-            autoresIds: $request->validated('autors', []),
-            assuntosIds: $request->validated('assuntos', []),
+            titulo: $request->input('titulo'),
+            editora: $request->input('editora'),
+            edicao: (int) $request->input('edicao'),
+            anoPublicacao: $request->input('ano_publicacao'),
+
+            // Converte diretamente para float, pois o Request já sanitizou para "11.11"
+            valor: (float) $request->input('valor'),
+
+            autores: $request->input('autores', []),
+            assuntos: $request->input('assuntos', [])
         );
     }
 

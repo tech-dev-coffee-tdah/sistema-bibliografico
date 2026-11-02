@@ -1,58 +1,206 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Elaborei a **documentação técnica completa** em formato `README.md`, pronta para ser incluída no seu repositório de entrega do projeto. Ela abrange a arquitetura, o setup de infraestrutura Docker/Redis, a modelagem de dados customizada, os padrões de projeto aplicados e os comandos de execução da suíte de testes.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+# 📚 Documentação Técnica - TJ-JUD Sistema Bibliográfico
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[![Laravel](https://img.shields.io/badge/Laravel-FF2D20?logo=laravel&logoColor=white)](https://laravel.com/)
+[![PHP](https://img.shields.io/badge/PHP-777BB4?logo=php&logoColor=white)](https://www.php.net/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Sistema de Gestão Bibliográfica** desenvolvido em **Laravel 13** para a avaliação técnica do **Spassu**, com foco em **Arquitetura em Camadas**, **Design Patterns (DTO & Service)**, **Desempenho**, **Segurança**, **Testes Automatizados (Unit & Feature)** e **Processamento Assíncrono com Redis**.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🎯 Objetivos do Projeto
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+O objetivo deste sistema é gerenciar o acervo bibliográfico do Tribunal (Livros, Autores e Assuntos) atendendo a todos os requisitos técnicos obrigatórios e boas práticas de desenvolvimento de nível Sênior:
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* **Gerenciamento Completo (CRUD):** Livros, Autores e Assuntos com validação estrita.
+* **Relacionamentos N:N:** Associação dinâmica de múltiplos Autores e Assuntos para cada Livro.
+* **Modelo de Dados Personalizado:** Atendimento à especificação de chaves primárias customizadas (`Codl`, `CodAu`, `CodAs`).
+* **Soft Deletes:** Exclusão lógica com preservação do histórico de dados.
+* **Relatórios e Views SQL:** VIEW relatorial otimizada (`vw_relatorio_livros`) para agrupamento de autores e assuntos via `GROUP_CONCAT` e geração de PDF via DomPDF.
+* **Alta Performance & Escalabilidade:** Redis para Caches, Filas (Queues) e Sessões centralizadas.
+* **Tratamento de Exceções Robustas:** Interceptação direcionada de `QueryException` e `ModelNotFoundException` sem vazamento de infraestrutura.
+* **UX/UI Moderna:** Componentes nativos do Bootstrap 5.3 com feedback de loading e modal de confirmação de exclusão.
+* **Pirâmide de Testes:** 100% de cobertura de cenários críticos através de Testes de Feature e Testes Unitários de Serviço.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## 🏗️ Arquitetura e Design Patterns
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+A aplicação segue uma **Arquitetura em Camadas** desacoplada:
 
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+```text
+[HTTP Request] 
+      │
+      ▼
+[FormRequest] (Validação e Sanitização dos Dados)
+      │
+      ▼
+[Controller] (Orquestração de Fluxo HTTP)
+      │
+      ▼
+[DTO (Data Transfer Object)] (Encapsulamento Tipado dos Dados)
+      │
+      ▼
+[Service Layer] (Regras de Negócio e Transações DB)
+      │
+      ▼
+[Model / Eloquent DB] (Persistência no MySQL / SQLite)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Principais Padrões Utilizados:
+1. **Service Layer (`LivroService`):** Centraliza a lógica de negócios e o controle de transações (`DB::transaction`), garantindo que alterações em Livros e suas tabelas pivô ocorram de forma atômica.
+2. **Data Transfer Object (`LivroDTO`):** Garante a imutabilidade e a tipagem forte dos dados trafegados entre Controllers e Services.
+3. **Form Requests (`LivroRequest`, `AutorRequest`, `AssuntoRequest`):** Isola a lógica de validação de entrada, impedindo que dados inconsistentes cheguem aos controllers.
+4. **Chaves Primárias Compostas em Tabelas Pivô:** As tabelas `livro_autor` e `livro_assunto` utilizam `$table->primary([...])`, garantindo integridade e impedindo associações duplicadas no nível do banco.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🗄️ Estrutura da Base de Dados
 
-## Code of Conduct
+### Tabelas Principais e Chaves Customizadas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Tabela | Chave Primária | Descrição |
+| :--- | :--- | :--- |
+| **`livros`** | `Codl` (Auto-increment) | Cadastro dos livros (`titulo`, `editora`, `edicao`, `ano_publicacao`, `valor`) |
+| **`autors`** | `CodAu` (Auto-increment) | Cadastro dos autores (`nome`) |
+| **`assuntos`** | `CodAs` (Auto-increment) | Cadastro dos assuntos/categorias (`descricao`) |
 
-## Security Vulnerabilities
+### Tabelas Pivô (N:N)
+* **`livro_autor`**: `livro_codl` (FK) + `autor_codau` (FK) com **PK Composta**.
+* **`livro_assunto`**: `livro_codl` (FK) + `assunto_codas` (FK) com **PK Composta**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### VIEW de Relatório (`vw_relatorio_livros`)
+Agrupa o acervo com seus respectivos autores e assuntos formatados em texto:
 
-## License
+```sql
+CREATE OR REPLACE VIEW vw_relatorio_livros AS
+SELECT 
+    l.Codl AS livro_id,
+    l.titulo,
+    l.editora,
+    l.edicao,
+    l.ano_publicacao,
+    l.valor,
+    COALESCE(GROUP_CONCAT(DISTINCT a.nome ORDER BY a.nome ASC SEPARATOR ', '), 'Nenhum Autor') AS autores,
+    COALESCE(GROUP_CONCAT(DISTINCT s.descricao ORDER BY s.descricao ASC SEPARATOR ', '), 'Nenhum Assunto') AS assuntos
+FROM livros l
+LEFT JOIN livro_autor la ON l.Codl = la.livro_codl
+LEFT JOIN autors a ON la.autor_codau = a.CodAu
+LEFT JOIN livro_assunto ls ON l.Codl = ls.livro_codl
+LEFT JOIN assuntos s ON ls.assunto_codas = s.CodAs
+WHERE l.deleted_at IS NULL
+GROUP BY l.Codl, l.titulo, l.editora, l.edicao, l.ano_publicacao, l.valor
+ORDER BY l.titulo ASC;
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🐳 Ambientação com Docker
+
+O projeto utiliza **Docker Compose** multinível composto por 5 containers interligados em rede isolada (`tjjud_network`):
+
+| Container | Serviço | Imagem / Base | Porta Host |
+| :--- | :--- | :--- | :--- |
+| `tjjud_app` | PHP 8.2-FPM | `docker/php/Dockerfile` | Interna |
+| `tjjud_nginx` | Web Server | `nginx:alpine` | `8080:80` |
+| `tjjud_db` | Banco MySQL 8.0 | `mysql:8.0` | `3306:3306` |
+| `tjjud_redis` | Cache & Queues | `redis:alpine` | `6379:6379` |
+| `tjjud_queue_worker` | Queue Worker | `docker/php/Dockerfile` | Background (`queue:work`) |
+
+---
+
+## 🚀 Guia de Instalação e Execução
+
+### Pré-requisitos
+* **Docker** e **Docker Compose** instalados.
+* **Git** para clonagem do repositório.
+
+### Passo a Passo
+
+1. **Clonar o Repositório:**
+   ```bash
+   git clone 
+   cd tjjud-livros
+   ```
+
+2. **Configurar o Arquivo de Ambiente:**
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Subir os Containers Docker:**
+   ```bash
+   docker compose up -d --build
+   ```
+
+4. **Instalar Dependências do Composer:**
+   ```bash
+   docker compose exec app composer install
+   ```
+
+5. **Gerar a Chave da Aplicação:**
+   ```bash
+   docker compose exec app php artisan key:generate
+   ```
+
+6. **Executar Migrations e Seeders (População Inicial):**
+   ```bash
+   docker compose exec app php artisan migrate:fresh --seed
+   ```
+
+7. **Acessar a Aplicação:**
+   Navegue para **`http://localhost:8080`** no seu navegador.
+
+---
+
+## ⚡ Otimizações de Desempenho & Redis
+
+### 1. Redis Cache, Queue e Session
+No arquivo `.env`, o sistema está totalmente integrado ao Redis:
+* **`CACHE_STORE=redis`**: Armazena consultas frequentes em memória RAM.
+* **`QUEUE_CONNECTION=redis`**: Processa tarefas assíncronas (como geração de relatórios) em segundo plano através do container `tjjud_queue_worker`.
+* **`SESSION_DRIVER=redis`**: Sessões centralizadas de ultra-baixa latência.
+
+### 2. Índices de Banco de Dados
+Índices estrategicamente definidos no schema para eliminar *Full Table Scans*:
+* `deleted_at`: Otimiza todas as queries automáticas do `SoftDeletes`.
+* `titulo`: Acelera a ordenação e filtros de busca por título.
+* `['livro_codl', 'autor_codau']` / `['livro_codl', 'assunto_codas']`: Otimização máxima para `JOINs` N:N.
+
+---
+
+## 🧪 Suíte de Testes Automatizados
+
+A aplicação conta com testes automatizados executados sob banco **SQLite em memória** (`:memory:`), garantindo velocidade e isolamento.
+
+### Executar Todos os Testes:
+```bash
+docker compose exec app php artisan test
+```
+
+### Executar Apenas Testes Unitários de Serviço:
+```bash
+docker compose exec app php artisan test --filter=LivroServiceTest
+```
+
+### Executar Testes de Feature (Integração HTTP/Controllers):
+```bash
+docker compose exec app php artisan test --testsuite=Feature
+```
+
+---
+
+## 🛡️ Tratamento de Erros e Segurança
+
+* **Ocultação de Erros de Infraestrutura:** Exceções do tipo `QueryException` são interceptadas no `bootstrap/app.php`, registradas em log seguro (`storage/logs/laravel.log`) e apresentadas ao usuário em formato de mensagens de alerta amigáveis.
+* **Prevenção contra Double Submit:** Scripts JavaScript globais desabilitam botões de envio e exibem spinners de carregamento instantaneamente ao submeter formulários.
+* **Modal Global de Exclusão:** Substituição do `confirm()` nativo por Modais do Bootstrap 5.3 com indicação explícita do título e ID do registro afetado.
+
+---

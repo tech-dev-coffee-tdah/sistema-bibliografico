@@ -2,63 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\AssuntoRequest;
+use App\Models\Assunto;
 
 class AssuntoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $assuntos = Assunto::withCount('livros')->orderBy('descricao')->paginate(10);
+        return view('assuntos.index', compact('assuntos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(AssuntoRequest $request)
     {
-        //
+        $assunto = Assunto::create($request->validated());
+
+        return redirect()->route('assuntos.index')
+            ->with('success', "Assunto \"{$assunto->descricao}\" (#{$assunto->id}) cadastrado com sucesso!");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(AssuntoRequest $request, Assunto $assunto)
     {
-        //
+        $assunto->update($request->validated());
+
+        return redirect()->route('assuntos.index')
+            ->with('success', "Assunto \"{$assunto->descricao}\" (#{$assunto->id}) atualizado com sucesso!");
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function destroy(Assunto $assunto)
     {
-        //
-    }
+        $descricao = $assunto->descricao;
+        $id = $assunto->id;
+        $assunto->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('assuntos.index')
+            ->with('success', "Assunto \"{$descricao}\" (#{$id}) removido com sucesso!");
     }
 }

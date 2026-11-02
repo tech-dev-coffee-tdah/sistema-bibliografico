@@ -63,7 +63,7 @@ class LivroTest extends TestCase
         $response = $this->delete("/livros/{$livro->id}");
 
         $response->assertRedirect('/livros');
-        $this->assertDatabaseMissing('livros', ['id' => $livro->id]);
+        $this->assertSoftDeleted('livros', ['id' => $livro->id]);
     }
 
     /** @test */

@@ -1,0 +1,64 @@
+/* Custom Dashboard Theme - TJ-JUD */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-bg: #f4f6f9;
+}
+
+body {
+    background-color: var(--secondary-bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Navbar */
+.navbar-custom {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards de KPI / Métricas */
+.card-kpi {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08) !important;
+}
+
+.kpi-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+/* Tabelas e Card Principal */
+.main-card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-custom th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.table-custom td {
+    padding: 1rem 0.75rem;
+}
+
+/* Botões */
+.btn-action {
+    border-radius: 8px;
+    transition: all 0.2s;
+}

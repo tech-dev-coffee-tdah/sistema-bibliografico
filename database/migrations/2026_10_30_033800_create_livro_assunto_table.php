@@ -12,13 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('livro_assunto', function (Blueprint $table) {
-            $table->foreignId('livro_id')->constrained('livros')->cascadeOnDelete();
-            $table->foreignId('assunto_id')->constrained('assuntos')->cascadeOnDelete();
-            $table->primary(['livro_id', 'assunto_id']);
+            $table->foreignId('livro_codl')->constrained('livros', 'Codl')->onDelete('cascade');
+            $table->foreignId('assunto_codas')->constrained('assuntos', 'CodAs')->onDelete('cascade');
+            $table->primary(['livro_codl', 'assunto_codas']);
+            $table->timestamps();
 
             // Índices para otimização de performance nas consultas e JOINs da VIEW
-            $table->index('livro_id');
-            $table->index('assunto_id');
+            $table->index('livro_codl');
+            $table->index('assunto_codas');
         });
     }
 

@@ -2,63 +2,54 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\AutorRequest;
+use App\Models\Autor;
+use Illuminate\Support\Facades\Cache;
 
 class AutorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Armazena a listagem em cache no Redis por 60 minutos (3600 segundos)
+        $autores = Cache::remember('autores_index_list', 3600, function () {
+            return Autor::withCount('livros')->orderBy('nome')->paginate(10);
+        });
+
+        return view('autores.index', compact('autores'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(AutorRequest $request)
     {
-        //
+        $autor = Autor::create($request->validated());
+
+        // Invalida o cache para que a nova listagem seja recalculada no próximo acesso
+        Cache::forget('autores_index_list');
+
+        return redirect()->route('autores.index')
+            ->with('success', "Autor \"{$autor->nome}\" (#{$autor->id}) cadastrado com sucesso!");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function update(AutorRequest $request, Autor $autore)
     {
-        //
+        $autore->update($request->validated());
+
+        // Invalida o cache
+        Cache::forget('autores_index_list');
+
+        return redirect()->route('autores.index')
+            ->with('success', "Autor \"{$autore->nome}\" (#{$autore->id}) atualizado com sucesso!");
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function destroy(Autor $autore)
     {
-        //
-    }
+        $nome = $autore->nome;
+        $id = $autore->id;
+        $autore->delete();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        // Invalida o cache
+        Cache::forget('autores_index_list');
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('autores.index')
+            ->with('success', "Autor \"{$nome}\" (#{$id}) removido com sucesso!");
     }
 }
