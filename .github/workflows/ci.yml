@@ -46,24 +46,22 @@ jobs:
       - name: 5. Instalar dependências do Composer
         run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
 
-      - name: 6. Configurar arquivo de ambiente para testes
+      - name: 6. Configurar arquivos de ambiente (.env e .env.testing)
         run: |
           cp .env.example .env
           cp .env.example .env.testing
           echo "DB_CONNECTION=sqlite" >> .env
           echo "DB_DATABASE=:memory:" >> .env
-          echo "CACHE_STORE=redis" >> .env
-          echo "QUEUE_CONNECTION=redis" >> .env
-          echo "REDIS_HOST=127.0.0.1" >> .env
-          echo "REDIS_PORT=6379" >> .env
+          echo "CACHE_STORE=array" >> .env
+          echo "SESSION_DRIVER=array" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
           echo "DB_CONNECTION=sqlite" >> .env.testing
           echo "DB_DATABASE=:memory:" >> .env.testing
-          echo "CACHE_STORE=redis" >> .env.testing
-          echo "QUEUE_CONNECTION=redis" >> .env.testing
-          echo "REDIS_HOST=127.0.0.1" >> .env.testing
-          echo "REDIS_PORT=6379" >> .env.testing
+          echo "CACHE_STORE=array" >> .env.testing
+          echo "SESSION_DRIVER=array" >> .env.testing
+          echo "QUEUE_CONNECTION=sync" >> .env.testing
 
-      - name: 7. Gerar chave da aplicação (App Key)
+      - name: 7. Gerar chaves da aplicação (App Keys)
         run: |
           php artisan key:generate
           php artisan key:generate --env=testing

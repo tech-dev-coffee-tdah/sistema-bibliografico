@@ -11,13 +11,6 @@ class AssuntoTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // Desativa apenas a checagem de CSRF, mantendo a Sessão ativa para validar erros e mensagens
-        $this->withoutMiddleware([ValidateCsrfToken::class]);
-    }
-
     public function test_pode_listar_assuntos(): void
     {
         Assunto::create(['descricao' => 'Romance']);
