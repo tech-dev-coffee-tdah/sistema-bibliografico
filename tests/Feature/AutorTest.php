@@ -26,9 +26,9 @@ class AutorTest extends TestCase
 
         $response = $this->post(route('autores.store'), $payload);
 
-        $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('autors', ['nome' => 'Clarice Lispector']);
+        $response->assertRedirect(route('autores.index'));
     }
 
     public function test_validacao_campo_nome_obrigatorio(): void
@@ -55,12 +55,12 @@ class AutorTest extends TestCase
             'nome' => 'Nome Atualizado',
         ]);
 
-        $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('autors', [
             'CodAu' => $autor->CodAu,
             'nome' => 'Nome Atualizado',
         ]);
+        $response->assertRedirect(route('autores.index'));
     }
 
     public function test_pode_remover_autor_com_exclusao_logica(): void
@@ -69,8 +69,8 @@ class AutorTest extends TestCase
 
         $response = $this->delete(route('autores.destroy', $autor));
 
-        $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
         $this->assertSoftDeleted('autors', ['CodAu' => $autor->CodAu]);
+        $response->assertRedirect(route('autores.index'));
     }
 }

@@ -26,9 +26,9 @@ class AssuntoTest extends TestCase
 
         $response = $this->post(route('assuntos.store'), $payload);
 
-        $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('assuntos', ['descricao' => 'Ficção Científica']);
+        $response->assertRedirect(route('assuntos.index'));
     }
 
     public function test_validacao_campo_descricao_obrigatorio(): void
@@ -55,12 +55,12 @@ class AssuntoTest extends TestCase
             'descricao' => 'Poesia',
         ]);
 
-        $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('assuntos', [
             'CodAs' => $assunto->CodAs,
             'descricao' => 'Poesia',
         ]);
+        $response->assertRedirect(route('assuntos.index'));
     }
 
     public function test_pode_remover_assunto_com_exclusao_logica(): void
@@ -69,8 +69,8 @@ class AssuntoTest extends TestCase
 
         $response = $this->delete(route('assuntos.destroy', $assunto));
 
-        $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
         $this->assertSoftDeleted('assuntos', ['CodAs' => $assunto->CodAs]);
+        $response->assertRedirect(route('assuntos.index'));
     }
 }
