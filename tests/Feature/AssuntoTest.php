@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Assunto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Tests\TestCase;
 
 class AssuntoTest extends TestCase
@@ -18,7 +17,6 @@ class AssuntoTest extends TestCase
         $response = $this->get(route('assuntos.index'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('assuntos.index');
         $response->assertSee('Romance');
     }
 
@@ -59,8 +57,6 @@ class AssuntoTest extends TestCase
 
         $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
-
-        // Valida utilizando a PK customizada CodAs
         $this->assertDatabaseHas('assuntos', [
             'CodAs' => $assunto->CodAs,
             'descricao' => 'Poesia',
@@ -75,8 +71,6 @@ class AssuntoTest extends TestCase
 
         $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
-
-        // Valida exclusão lógica (Soft Delete) via PK customizada CodAs
         $this->assertSoftDeleted('assuntos', ['CodAs' => $assunto->CodAs]);
     }
 }

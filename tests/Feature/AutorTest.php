@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Autor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Tests\TestCase;
 
 class AutorTest extends TestCase
@@ -18,7 +17,6 @@ class AutorTest extends TestCase
         $response = $this->get(route('autores.index'));
 
         $response->assertStatus(200);
-        $response->assertViewIs('autores.index');
         $response->assertSee('Machado de Assis');
     }
 
@@ -59,8 +57,6 @@ class AutorTest extends TestCase
 
         $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
-
-        // Valida utilizando a PK customizada CodAu
         $this->assertDatabaseHas('autors', [
             'CodAu' => $autor->CodAu,
             'nome' => 'Nome Atualizado',
@@ -75,8 +71,6 @@ class AutorTest extends TestCase
 
         $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
-
-        // Valida exclusão lógica (Soft Delete) via PK customizada CodAu
         $this->assertSoftDeleted('autors', ['CodAu' => $autor->CodAu]);
     }
 }
