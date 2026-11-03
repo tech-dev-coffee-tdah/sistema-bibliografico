@@ -26,8 +26,8 @@ class AutorTest extends TestCase
 
         $response = $this->post(route('autores.store'), $payload);
 
-        $response->assertSessionHas('success');
         $this->assertDatabaseHas('autors', ['nome' => 'Clarice Lispector']);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('autores.index'));
     }
 
@@ -55,11 +55,11 @@ class AutorTest extends TestCase
             'nome' => 'Nome Atualizado',
         ]);
 
-        $response->assertSessionHas('success');
         $this->assertDatabaseHas('autors', [
             'CodAu' => $autor->CodAu,
             'nome' => 'Nome Atualizado',
         ]);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('autores.index'));
     }
 
@@ -69,8 +69,8 @@ class AutorTest extends TestCase
 
         $response = $this->delete(route('autores.destroy', $autor));
 
-        $response->assertSessionHas('success');
         $this->assertSoftDeleted('autors', ['CodAu' => $autor->CodAu]);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('autores.index'));
     }
 }

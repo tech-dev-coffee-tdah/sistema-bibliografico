@@ -26,8 +26,8 @@ class AssuntoTest extends TestCase
 
         $response = $this->post(route('assuntos.store'), $payload);
 
-        $response->assertSessionHas('success');
         $this->assertDatabaseHas('assuntos', ['descricao' => 'Ficção Científica']);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('assuntos.index'));
     }
 
@@ -55,11 +55,11 @@ class AssuntoTest extends TestCase
             'descricao' => 'Poesia',
         ]);
 
-        $response->assertSessionHas('success');
         $this->assertDatabaseHas('assuntos', [
             'CodAs' => $assunto->CodAs,
             'descricao' => 'Poesia',
         ]);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('assuntos.index'));
     }
 
@@ -69,8 +69,8 @@ class AssuntoTest extends TestCase
 
         $response = $this->delete(route('assuntos.destroy', $assunto));
 
-        $response->assertSessionHas('success');
         $this->assertSoftDeleted('assuntos', ['CodAs' => $assunto->CodAs]);
+        $response->assertSessionHas('success');
         $response->assertRedirect(route('assuntos.index'));
     }
 }
