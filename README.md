@@ -11,6 +11,8 @@
 [![Redis](https://img.shields.io/badge/Redis-DC382D?logo=redis&logoColor=white)](https://redis.io/)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?logo=bootstrap&logoColor=white)](https://getbootstrap.com/)
 
+**Repositório Oficial:** [https://github.com/tech-dev-coffee-tdah/sistema-bibliografico](https://github.com/tech-dev-coffee-tdah/sistema-bibliografico)
+
 **Sistema de Gestão Bibliográfica** desenvolvido em **Laravel 13** para a avaliação técnica do **Spassu**, com foco em **Arquitetura em Camadas**, **Design Patterns (DTO & Service)**, **Desempenho**, **Segurança**, **Testes Automatizados (Unit & Feature)** e **Processamento Assíncrono com Redis**.
 
 ---
@@ -19,15 +21,17 @@
 
 O objetivo deste sistema é gerenciar o acervo bibliográfico do Tribunal (Livros, Autores e Assuntos) atendendo a todos os requisitos técnicos obrigatórios e boas práticas de desenvolvimento de nível Sênior:
 
-* **Gerenciamento Completo (CRUD):** Livros, Autores e Assuntos com validação estrita.
-* **Relacionamentos N:N:** Associação dinâmica de múltiplos Autores e Assuntos para cada Livro.
-* **Modelo de Dados Personalizado:** Atendimento à especificação de chaves primárias customizadas (`Codl`, `CodAu`, `CodAs`).
-* **Soft Deletes:** Exclusão lógica com preservação do histórico de dados.
-* **Relatórios e Views SQL:** VIEW relatorial otimizada (`vw_relatorio_livros`) para agrupamento de autores e assuntos via `GROUP_CONCAT` e geração de PDF via DomPDF.
-* **Alta Performance & Escalabilidade:** Redis para Caches, Filas (Queues) e Sessões centralizadas.
-* **Tratamento de Exceções Robustas:** Interceptação direcionada de `QueryException` e `ModelNotFoundException` sem vazamento de infraestrutura.
-* **UX/UI Moderna:** Componentes nativos do Bootstrap 5.3 com feedback de loading e modal de confirmação de exclusão.
-* **Pirâmide de Testes:** 100% de cobertura de cenários críticos através de Testes de Feature e Testes Unitários de Serviço.
+* **Gerenciamento Completo do Acervo (CRUD):** Livros, Autores e Assuntos com validações estritas de entrada.
+* **Relacionamentos N:N Complexos:** Associação dinâmica e integridade referencial entre Livros, múltiplos Autores e Assuntos.
+* **Chaves Primárias Customizadas:** Mapeamento explícito das chaves `$primaryKey` (`Codl`, `CodAu`, `CodAs`) em conformidade com a especificação do Tribunal.
+* **Soft Deletes:** Exclusão lógica aplicada a todas as entidades principais para preservação do histórico de dados e auditoria.
+* **VIEW SQL Relatorial (`vw_relatorio_livros`):** Agregação otimizada no banco via `GROUP_CONCAT` para geração de relatórios síncronos e assíncronos em PDF via DomPDF.
+* **Arquitetura em Camadas (Layered Architecture):** Desacoplamento estrito entre Controllers, Form Requests, DTOs e Services.
+* **Alta Performance com Redis:** Utilização do Redis para **Cache de Consultas**, **Processamento Assíncrono de Filas (Queues)** e **Gestão Centralizada de Sessões**.
+* **Resiliência e Log de Exceções:** Interceptação direcionada de `QueryException` e `ModelNotFoundException` no Handler Global sem exposição de detalhes internos do banco de dados.
+* **Pirâmide de Testes:** Cobertura de testes unitários de serviço (`LivroServiceTest`) e testes de integração de feature (`Feature`) utilizando banco SQLite em memória (`:memory:`).
+* **DevOps & Integração Contínua (CI/CD):** Pipeline automatizado no GitHub Actions validando testes, lint e padrões em cada `push` e `Pull Request`.
+
 
 ---
 
@@ -127,7 +131,7 @@ O projeto utiliza **Docker Compose** multinível composto por 5 containers inter
 1. **Clonar o Repositório:**
    ```bash
    git clone https://github.com/tech-dev-coffee-tdah/sistema-bibliografico.git
-   cd tjjud-livros
+   cd sistema-bibliografico
    ```
 
 2. **Configurar o Arquivo de Ambiente:**
@@ -204,3 +208,15 @@ docker compose exec app php artisan test --testsuite=Feature
 * **Modal Global de Exclusão:** Substituição do `confirm()` nativo por Modais do Bootstrap 5.3 com indicação explícita do título e ID do registro afetado.
 
 ---
+
+## 🔄 DevOps & Esteira de CI/CD (GitHub Actions)
+
+A esteira de integração contínua é configurada no arquivo `.github/workflows/ci.yml`:
+
+* **Gatilhos:** Disparado em cada `push` e `Pull Request` nas branches `main` e `master`.
+* **Ambiente de CI:** Runner Ubuntu com PHP 8.2 e container auxiliar de Redis Alpine.
+* **Validações:** Validação de sintaxe do Composer, instalação de dependências, geração de chave de ambiente e execução da suíte completa de testes.
+* **Branch Protection Rules:** Regra configurada no repositório impedindo o merge na branch `main` caso a esteira de testes falhe.
+
+---
+
