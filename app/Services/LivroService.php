@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Dtos\LivroDTO;
+use App\DTOs\LivroDTO;
 use App\Models\Livro;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;

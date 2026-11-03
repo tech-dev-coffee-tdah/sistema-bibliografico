@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Dtos\LivroDTO;
+use App\DTOs\LivroDTO;
 use App\Http\Requests\LivroRequest;
 use App\Models\Assunto;
 use App\Models\Autor;

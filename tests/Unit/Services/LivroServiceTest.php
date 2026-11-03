@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Services;
 
-use App\Dtos\LivroDTO;
+use App\DTOs\LivroDTO;
 use App\Models\Livro;
 use App\Models\Autor;
 use App\Models\Assunto;
