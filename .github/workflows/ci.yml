@@ -1,0 +1,66 @@
+name: CI/CD Pipeline - TJ-JUD
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: 1. Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar ambiente PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_sqlite, sqlite3, redis, gd, zip
+          coverage: none
+
+      - name: 3. Validar sintaxe do composer.json
+        run: composer validate --strict
+
+      - name: 4. Cache das dependências do Composer
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: 5. Instalar dependências do Composer
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: 6. Configurar arquivo de ambiente para testes
+        run: |
+          cp .env.example .env.testing
+          echo "DB_CONNECTION=sqlite" >> .env.testing
+          echo "DB_DATABASE=:memory:" >> .env.testing
+          echo "CACHE_STORE=redis" >> .env.testing
+          echo "QUEUE_CONNECTION=redis" >> .env.testing
+          echo "REDIS_HOST=127.0.0.1" >> .env.testing
+          echo "REDIS_PORT=6379" >> .env.testing
+
+      - name: 7. Gerar chave da aplicação (App Key)
+        run: php artisan key:generate --env=testing
+
+      - name: 8. Executar Suíte de Testes (Unit & Feature)
+        env:
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+        run: php artisan test --env=testing
