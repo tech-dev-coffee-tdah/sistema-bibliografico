@@ -13,7 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Isenta a validação de CSRF em todas as rotas APENAS no ambiente de testes
+        $middleware->validateCsrfTokens(
+            except: (env('APP_ENV') === 'testing' || ($_ENV['APP_ENV'] ?? '') === 'testing') ? ['*'] : []
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
