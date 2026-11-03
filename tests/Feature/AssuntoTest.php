@@ -4,11 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\Assunto;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Tests\TestCase;
 
 class AssuntoTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Desativa apenas a checagem de CSRF, mantendo a Sessão ativa para validar erros e mensagens
+        $this->withoutMiddleware([ValidateCsrfToken::class]);
+    }
 
     public function test_pode_listar_assuntos(): void
     {
@@ -23,7 +31,7 @@ class AssuntoTest extends TestCase
 
     public function test_pode_cadastrar_novo_assunto(): void
     {
-        $payload = ['descricao' => 'Ficção Científica']; // 17 caracteres (max 20)
+        $payload = ['descricao' => 'Ficção Científica'];
 
         $response = $this->post(route('assuntos.store'), $payload);
 
@@ -41,7 +49,7 @@ class AssuntoTest extends TestCase
 
     public function test_validacao_limite_maximo_20_caracteres_na_descricao(): void
     {
-        $descricaoExtensa = str_repeat('A', 21); // Excede o limite de 20 caracteres
+        $descricaoExtensa = str_repeat('A', 21);
 
         $response = $this->post(route('assuntos.store'), ['descricao' => $descricaoExtensa]);
 
@@ -58,8 +66,10 @@ class AssuntoTest extends TestCase
 
         $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
+
+        // Valida utilizando a PK customizada CodAs
         $this->assertDatabaseHas('assuntos', [
-            'id' => $assunto->id,
+            'CodAs' => $assunto->CodAs,
             'descricao' => 'Poesia',
         ]);
     }
@@ -73,7 +83,7 @@ class AssuntoTest extends TestCase
         $response->assertRedirect(route('assuntos.index'));
         $response->assertSessionHas('success');
 
-        // Valida que o registro sofreu Soft Delete
-        $this->assertSoftDeleted('assuntos', ['id' => $assunto->id]);
+        // Valida exclusão lógica (Soft Delete) via PK customizada CodAs
+        $this->assertSoftDeleted('assuntos', ['CodAs' => $assunto->CodAs]);
     }
 }

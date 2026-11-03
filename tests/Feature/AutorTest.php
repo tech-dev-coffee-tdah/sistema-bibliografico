@@ -4,11 +4,19 @@ namespace Tests\Feature;
 
 use App\Models\Autor;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Http\Middleware\ValidateCsrfToken;
 use Tests\TestCase;
 
 class AutorTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Desativa apenas a checagem de CSRF, mantendo a Sessão ativa para validar erros e mensagens
+        $this->withoutMiddleware([ValidateCsrfToken::class]);
+    }
 
     public function test_pode_listar_autores(): void
     {
@@ -41,7 +49,7 @@ class AutorTest extends TestCase
 
     public function test_validacao_limite_maximo_40_caracteres_no_nome(): void
     {
-        $nomeExtenso = str_repeat('A', 41); // Excede o limite de 40 caracteres
+        $nomeExtenso = str_repeat('A', 41);
 
         $response = $this->post(route('autores.store'), ['nome' => $nomeExtenso]);
 
@@ -58,8 +66,10 @@ class AutorTest extends TestCase
 
         $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
+
+        // Valida utilizando a PK customizada CodAu
         $this->assertDatabaseHas('autors', [
-            'id' => $autor->id,
+            'CodAu' => $autor->CodAu,
             'nome' => 'Nome Atualizado',
         ]);
     }
@@ -73,7 +83,7 @@ class AutorTest extends TestCase
         $response->assertRedirect(route('autores.index'));
         $response->assertSessionHas('success');
 
-        // Valida que o registro sofreu Soft Delete (permaneceu na tabela com deleted_at preenchido)
-        $this->assertSoftDeleted('autors', ['id' => $autor->id]);
+        // Valida exclusão lógica (Soft Delete) via PK customizada CodAu
+        $this->assertSoftDeleted('autors', ['CodAu' => $autor->CodAu]);
     }
 }
