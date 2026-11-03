@@ -44,7 +44,7 @@ jobs:
             ${{ runner.os }}-php-
 
       - name: 5. Instalar dependências do Composer
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer install --prefer-dist --no-progress --no-interaction --ignore-platform-reqs
 
       - name: 6. Configurar arquivo de ambiente para testes
         run: |
