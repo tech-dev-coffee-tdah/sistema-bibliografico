@@ -25,10 +25,10 @@ jobs:
       - name: 1. Checkout do Código
         uses: actions/checkout@v4
 
-      - name: 2. Configurar ambiente PHP 8.2
+      - name: 2. Configurar ambiente PHP 8.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3'
           extensions: mbstring, pdo, pdo_sqlite, sqlite3, redis, gd, zip
           coverage: none
 
