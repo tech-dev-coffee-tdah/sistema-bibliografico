@@ -8,6 +8,7 @@ use App\Models\Assunto;
 use App\Models\Autor;
 use App\Models\Livro;
 use App\Services\LivroService;
+use Illuminate\Http\Request;
 
 class LivroController extends Controller
 {
@@ -18,10 +19,24 @@ class LivroController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $livros = Livro::with(['autors', 'assuntos'])->latest()->paginate(10);
-        return view('livros.index', compact('livros'));
+        $search = $request->input('search');
+
+        $livros = Livro::with(['autores', 'assuntos'])
+            ->when($search, function ($query, $search) {
+                $query->where('Titulo', 'LIKE', "%{$search}%")
+                    ->orWhere('Editora', 'LIKE', "%{$search}%")
+                    ->orWhereHas('autores', function ($q) use ($search) {
+                        $q->where('nome', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('assuntos', function ($q) use ($search) {
+                        $q->where('descricao', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->paginate(10);
+
+        return view('livros.index', compact('livros', 'search'));
     }
 
     /**

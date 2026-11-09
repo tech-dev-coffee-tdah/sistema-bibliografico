@@ -73,6 +73,38 @@
     </div>
 </div>
 
+<!-- Formulário de Pesquisa -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form action="{{ route('livros.index') }}" method="GET" class="row g-2 align-items-center">
+            <div class="col-md-9 col-sm-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-white text-muted">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text"
+                           name="search"
+                           class="form-control"
+                           placeholder="Pesquisar por título, editora, autor ou assunto..."
+                           value="{{ request('search') }}">
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    Buscar
+                </button>
+
+                @if(request('search'))
+                    <a href="{{ route('livros.index') }}" class="btn btn-outline-secondary" title="Limpar busca">
+                        Limpar
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Tabela de Livros -->
 <div class="card main-card shadow-sm bg-white">
     <div class="card-body p-0">
@@ -236,7 +268,7 @@
     </div>
     @if($livros->hasPages())
         <div class="card-footer bg-white border-0 py-3">
-            {{ $livros->links('pagination::bootstrap-5') }}
+            {{ $livros->withQueryString()->links('pagination::bootstrap-5') }}
         </div>
     @endif
 </div>
